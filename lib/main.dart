@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import "dart:math" as math; // 乱数を使うために必要
-import 'dart:async'; // Streamを使うために必要
+import 'dart:async';
+
+import 'package:flutter_screenutil/flutter_screenutil.dart'; // Streamを使うために必要
 
 void main() {
   runApp(const MyApp());
@@ -39,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final stringStream =
       StreamController<String>.broadcast(); // 複数のクラスでlistenするためにbroadcast()を使う
 
-  // 初期化時にConsumerのコンストラクタにStreamを渡す
+  // 初期化時にコンストラクタにStreamを渡す
   @override
   void initState() {
     super.initState();
@@ -60,30 +62,33 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // 画面の構成を定義する
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            StreamBuilder<String>(
-              stream: stringStream.stream,
-              initialData: "",
-              builder: (context, snapshot) {
-                return Text(
-                  '${snapshot.data}',
-                  style: Theme.of(context).textTheme.headline4,
-                );
-              },
-            ),
-          ],
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-      ),
-    );
+        body: ScreenUtilInit(
+          // デザイン原案におけるデバイス画面の大きさ(単位：dp)
+          designSize: const Size(360, 690),
+          builder: (context, child) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  'You have pushed the button this many times:',
+                ),
+                StreamBuilder<String>(
+                  stream: stringStream.stream,
+                  initialData: "",
+                  builder: (context, snapshot) {
+                    return Text(
+                      '${snapshot.data}',
+                      style: Theme.of(context).textTheme.headline4,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }
 
