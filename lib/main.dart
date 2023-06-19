@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import "dart:math" as math; // 乱数を使うために必要
+import 'dart:async'; // Streamを使うために必要
 
 void main() {
   runApp(const MyApp());
@@ -32,15 +34,26 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  // Stream
+  final intStream = StreamController<int>();
+  final stringStream =
+      StreamController<String>.broadcast(); // 複数のクラスでlistenするためにbroadcast()を使う
 
-  // カウントアップメソッド
-  void _incrementCounter() {
-    setState(() {
-      // 状態を持つウィジェットなので状態を更新することができる
-      // 状態が更新されるとbuildメソッドが呼ばれる
-      _counter++;
-    });
+  // 初期化時にConsumerのコンストラクタにStreamを渡す
+  @override
+  void initState() {
+    super.initState();
+    Consumer(stringStream);
+    Coordinator(intStream, stringStream);
+    Generator(intStream);
+  }
+
+  // 終了時にStreamを解放する
+  @override
+  void dispose() {
+    super.dispose();
+    intStream.close();
+    stringStream.close();
   }
 
   @override
@@ -57,18 +70,63 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            StreamBuilder<String>(
+              stream: stringStream.stream,
+              initialData: "",
+              builder: (context, snapshot) {
+                return Text(
+                  '${snapshot.data}',
+                  style: Theme.of(context).textTheme.headline4,
+                );
+              },
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
     );
+  }
+}
+
+// Generatorクラス
+// データの生成を担当する
+class Generator {
+  //コンストラクタでint型のStreamを受け取る
+  Generator(StreamController<int> intStream) {
+    // 10秒に1度、整数の乱数を作ってStreamに流す
+    Timer.periodic(
+      const Duration(seconds: 10),
+      (timer) {
+        int data = math.Random().nextInt(100);
+        print("Generatorが$dataを作ったよ");
+        intStream.sink.add(data);
+      },
+    );
+  }
+}
+
+// Coordinatorクラス
+// データの加工を担当する
+class Coordinator {
+  //コンストラクタでint型のStreamとString型のStreamを受け取る
+  Coordinator(
+      StreamController<int> intStream, StreamController<String> stringStream) {
+    // 流れてきたものをintからStringにする
+    intStream.stream.listen((data) async {
+      String newData = data.toString();
+      print("Coordinatorが$data(数値)から$newData(文字列)に変換したよ");
+      stringStream.sink.add(newData);
+    });
+  }
+}
+
+// Consumerクラス
+// データの利用を担当する
+class Consumer {
+  //コンストラクタでString型のStreamを受け取る
+  Consumer(StreamController<String> stringStream) {
+    // Streamをlistenしてデータが来たらターミナルに表示する
+    stringStream.stream.listen((data) async {
+      print("Consumerが$dataを使ったよ");
+    });
   }
 }
