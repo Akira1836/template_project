@@ -3,6 +3,7 @@ import "dart:math" as math; // 乱数を使うために必要
 import 'dart:async';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Streamを使うために必要
+import 'package:flutter_native_splash/flutter_native_splash.dart'; // スプラッシュ画面を表示するために必要
 
 void main() {
   runApp(const MyApp());
@@ -21,6 +22,14 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaleFactor: 1.0), //端末設定の文字サイズを無視する
+          child: child!,
+        );
+      },
+      debugShowCheckedModeBanner: false, // デバッグモードのバナーを非表示にする
     );
   }
 }
@@ -60,6 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // 数秒後にスプラッシュ画面を非表示にする
+    Timer.periodic(const Duration(seconds: 1), (Timer _timer) async {
+      FlutterNativeSplash.remove();
+    });
+
     // 画面の構成を定義する
     return Scaffold(
         appBar: AppBar(

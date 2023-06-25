@@ -31,11 +31,23 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_screenutil: ^5.3.1 # レスポンシブ表示に対応するために使用
+  flutter_native_splash: ^2.1.3+1 # スプラッシュ画面の表示に使用 
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+
+# スプラッシュ画面の設定
+# 更新するときは"flutter pub run flutter_native_splash:create"を実行する
+flutter_native_splash:
+  image: "assets/images/splash/splash.png"  #表示したい画像のパス
+  color: "FFFFFF"  #背景色、カラーコードで指定
+  fullscreen: true
+  android_12:
+    icon_background_color: "FFFFFF"  #背景色、カラーコードで指定
+    image: "assets/images/splash/splash.png"  #表示したい画像のパス
+    fullscreen: true
 
 dev_dependencies:
   flutter_test:
